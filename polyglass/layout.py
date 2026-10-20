@@ -1,4 +1,5 @@
 """Measure each OCR line's look (colours, size, weight) and group lines into text blocks."""
+
 from dataclasses import dataclass
 
 import numpy as np
@@ -18,8 +19,8 @@ BOLD_STROKE_RATIO = 0.13
 class LineStyle:
     background: tuple[int, int, int]
     foreground: tuple[int, int, int]
-    em: float          # estimated font pixel size
-    stroke: float      # median stroke width in pixels
+    em: float  # estimated font pixel size
+    stroke: float  # median stroke width in pixels
 
 
 @dataclass
@@ -34,7 +35,7 @@ class TextBlock:
         """Lines that wrap mid-sentence are joined with spaces; list-like lines (short, or ending a
         sentence) keep their line break so menus and lists stay one item per line."""
         parts = [self.lines[0].text]
-        for prev, line in zip(self.lines, self.lines[1:]):
+        for prev, line in zip(self.lines, self.lines[1:], strict=False):
             short = prev.box.right < self.box.x + 0.7 * self.box.w
             ends_sentence = prev.text.rstrip()[-1:] in ".!?:;"
             # Wrapped paragraph lines rarely start with a capital; new list items usually do
@@ -66,7 +67,7 @@ class TextBlock:
 def build_blocks(img: np.ndarray, lines: list[OcrLine]) -> list[TextBlock]:
     """img is the BGRA frame the lines were read from."""
     blocks: list[TextBlock] = []
-    for line in sorted(lines, key=lambda l: (l.box.y, l.box.x)):
+    for line in sorted(lines, key=lambda ln: (ln.box.y, ln.box.x)):
         line.box = _extend_over_missed_ink(img, line.box)
         style = measure_line(img, line)
         target = None
@@ -94,7 +95,10 @@ def _continues(block: TextBlock, line: OcrLine, style: LineStyle) -> bool:
         return False
     if abs(last_style.stroke / max(1.0, last_style.em) - style.stroke / max(1.0, style.em)) > 0.035:
         return False  # weight changes, e.g. a bold heading above regular text
-    if _distance(last_style.foreground, style.foreground) > 70 or _distance(last_style.background, style.background) > 45:
+    if (
+        _distance(last_style.foreground, style.foreground) > 70
+        or _distance(last_style.background, style.background) > 45
+    ):
         return False
     overlap = min(last.right, line.box.right) - max(last.x, line.box.x)
     return abs(last.x - line.box.x) < 1.5 * em or overlap > 0.3 * min(last.w, line.box.w)
@@ -107,7 +111,7 @@ def measure_line(img: np.ndarray, line: OcrLine) -> LineStyle:
     bg = np.median(ring, axis=0) if len(ring) else np.array([255.0, 255.0, 255.0])
 
     x0, y0 = max(0, int(box.x)), max(0, int(box.y))
-    patch = img[y0:int(np.ceil(box.bottom)), x0:int(np.ceil(box.right)), :3].astype(float)
+    patch = img[y0 : int(np.ceil(box.bottom)), x0 : int(np.ceil(box.right)), :3].astype(float)
     has_desc = any(ch in DESCENDERS for ch in line.text)
     em = box.h / (BOX_TO_EM_WITH_DESC if has_desc else BOX_TO_EM_NO_DESC)
     if patch.size == 0:
@@ -169,8 +173,9 @@ def _ring(img: np.ndarray, box: Box, pad: int) -> np.ndarray:
         return np.empty((0, 3))
     patch = img[y0:y1, x0:x1, :3]
     t = max(1, min(pad, patch.shape[0] // 2, patch.shape[1] // 2))
-    return np.concatenate([patch[:t].reshape(-1, 3), patch[-t:].reshape(-1, 3),
-                           patch[:, :t].reshape(-1, 3), patch[:, -t:].reshape(-1, 3)]).astype(float)
+    return np.concatenate(
+        [patch[:t].reshape(-1, 3), patch[-t:].reshape(-1, 3), patch[:, :t].reshape(-1, 3), patch[:, -t:].reshape(-1, 3)]
+    ).astype(float)
 
 
 def _distance(a, b) -> float:

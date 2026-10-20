@@ -1,8 +1,15 @@
-"""Windows built-in OCR (Windows.Media.Ocr) with per-line bounding boxes."""
+"""Windows built-in OCR (Windows.Media.Ocr) with per-line bounding boxes.
+
+Qt and WinRT must not meet in the wrong order: importing PySide6 after the WinRT modules crashes the
+process (access violation), so this module imports Qt first. Likewise, create the QApplication before
+calling into WinRT on the main thread.
+"""
+
 import asyncio
 from dataclasses import dataclass
 
 import numpy as np
+import PySide6.QtCore  # noqa: F401  # must load before WinRT, see module docstring
 from winrt.windows.globalization import Language
 from winrt.windows.graphics.imaging import BitmapPixelFormat, SoftwareBitmap
 from winrt.windows.media.ocr import OcrEngine
@@ -49,8 +56,9 @@ class WindowsOcr:
     def set_language(self, language_tag: str) -> None:
         engine = OcrEngine.try_create_from_language(Language(language_tag))
         if engine is None:
-            raise ValueError(f"Windows OCR language '{language_tag}' is not installed. "
-                             f"Installed: {', '.join(installed_languages())}")
+            raise ValueError(
+                f"Windows OCR language '{language_tag}' is not installed. Installed: {', '.join(installed_languages())}"
+            )
         self._engine = engine
         self.language_tag = language_tag
 
@@ -69,8 +77,7 @@ class WindowsOcr:
         h, w = bgra.shape[:2]
         writer = DataWriter()
         writer.write_bytes(bgra.tobytes())
-        bitmap = SoftwareBitmap.create_copy_from_buffer(
-            writer.detach_buffer(), BitmapPixelFormat.BGRA8, w, h)
+        bitmap = SoftwareBitmap.create_copy_from_buffer(writer.detach_buffer(), BitmapPixelFormat.BGRA8, w, h)
         result = await self._engine.recognize_async(bitmap)
 
         lines = []

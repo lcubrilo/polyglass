@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "polyglass"
+version = "0.1.0"
+description = "Live on-screen translation for Windows: pick an area, Polyglass reads it and paints the translation over the original text."
+readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "lcubrilo" }]
+keywords = ["translation", "ocr", "overlay", "screen", "windows"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Operating System :: Microsoft :: Windows :: Windows 11",
+    "Programming Language :: Python :: 3",
+    "Topic :: Text Processing :: Linguistic",
+]
+dependencies = [
+    "mss>=10.0",
+    "numpy>=2.0",
+    "PySide6-Essentials>=6.8",
+    "anthropic>=1.0",
+    "deepl>=1.20",
+    "winrt-runtime>=3.0",
+    "winrt-Windows.Foundation>=3.0",
+    "winrt-Windows.Foundation.Collections>=3.0",
+    "winrt-Windows.Globalization>=3.0",
+    "winrt-Windows.Graphics.Imaging>=3.0",
+    "winrt-Windows.Media.Ocr>=3.0",
+    "winrt-Windows.Storage.Streams>=3.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6", "pre-commit>=3"]
+
+[project.gui-scripts]
+polyglass = "polyglass.app:main"
+
+[tool.setuptools.packages.find]
+include = ["polyglass*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes, import order, bugbear, pyupgrade
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

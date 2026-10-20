@@ -1,4 +1,5 @@
 """System-wide hotkeys via the Win32 RegisterHotKey API, on a thread with its own message loop."""
+
 import ctypes
 import threading
 from ctypes import wintypes

@@ -1,4 +1,5 @@
 """Translators share one interface: translate(texts, source, target, context) -> list of translations."""
+
 import json
 import urllib.parse
 import urllib.request
@@ -7,9 +8,24 @@ from concurrent.futures import ThreadPoolExecutor
 from .config import Config, deepl_key, has_claude_credentials
 
 LANGUAGE_NAMES = {
-    "en": "English", "fr": "French", "de": "German", "es": "Spanish", "it": "Italian", "pt": "Portuguese",
-    "sr": "Serbian", "hr": "Croatian", "ru": "Russian", "uk": "Ukrainian", "pl": "Polish", "nl": "Dutch",
-    "tr": "Turkish", "ja": "Japanese", "zh": "Chinese", "ko": "Korean", "ar": "Arabic", "el": "Greek",
+    "en": "English",
+    "fr": "French",
+    "de": "German",
+    "es": "Spanish",
+    "it": "Italian",
+    "pt": "Portuguese",
+    "sr": "Serbian",
+    "hr": "Croatian",
+    "ru": "Russian",
+    "uk": "Ukrainian",
+    "pl": "Polish",
+    "nl": "Dutch",
+    "tr": "Turkish",
+    "ja": "Japanese",
+    "zh": "Chinese",
+    "ko": "Korean",
+    "ar": "Arabic",
+    "el": "Greek",
 }
 
 
@@ -25,7 +41,9 @@ class Translator:
 
 
 class GoogleFreeTranslator(Translator):
-    """Keyless Google endpoint. No context awareness; a fallback so the app works without any API key."""
+    """Google's keyless web endpoint. Unofficial and outside Google's terms of service, so it is opt-in
+    (allow_unofficial_google) and meant for personal use only. No context awareness."""
+
     name = "google"
     URL = "https://clients5.google.com/translate_a/t?client=dict-chrome-ex&ie=UTF-8&oe=UTF-8&sl={sl}&tl={tl}"
 
@@ -49,6 +67,7 @@ class DeepLTranslator(Translator):
 
     def __init__(self, key: str):
         import deepl
+
         self._client = deepl.Translator(key)
 
     @staticmethod
@@ -58,8 +77,11 @@ class DeepLTranslator(Translator):
 
     def translate(self, texts, source, target, context):
         results = self._client.translate_text(
-            texts, source_lang=iso(source).upper(), target_lang=self._target_code(target),
-            context="\n".join(context) or None)
+            texts,
+            source_lang=iso(source).upper(),
+            target_lang=self._target_code(target),
+            context="\n".join(context) or None,
+        )
         return [r.text for r in results]
 
 
@@ -78,6 +100,7 @@ class ClaudeTranslator(Translator):
 
     def __init__(self, model: str, effort: str):
         import anthropic
+
         self._anthropic = anthropic
         self._client = anthropic.Anthropic()
         self._model = model
@@ -86,8 +109,7 @@ class ClaudeTranslator(Translator):
     def translate(self, texts, source, target, context):
         src = LANGUAGE_NAMES.get(iso(source), source)
         tgt = LANGUAGE_NAMES.get(iso(target), target)
-        payload = {"source_language": src, "target_language": tgt,
-                   "earlier_context": context, "items": texts}
+        payload = {"source_language": src, "target_language": tgt, "earlier_context": context, "items": texts}
         response = self._client.beta.messages.create(
             model=self._model,
             max_tokens=16000,
@@ -117,10 +139,33 @@ class ClaudeTranslator(Translator):
         return translations
 
 
+class NoTranslator(Translator):
+    """Placeholder when nothing is configured, so the app still starts and can explain what to set up."""
+
+    name = "none"
+
+    def translate(self, texts, source, target, context):
+        raise RuntimeError("No translator is set up. Set DEEPL_API_KEY or ANTHROPIC_API_KEY and restart Polyglass.")
+
+
+def available_translators(cfg: Config) -> list[str]:
+    names = ["auto", "claude", "deepl"]
+    if cfg.allow_unofficial_google:
+        names.append("google")
+    return names
+
+
 def create_translator(cfg: Config) -> Translator:
     choice = cfg.translator
     if choice == "auto":
-        choice = "claude" if has_claude_credentials() else "deepl" if deepl_key() else "google"
+        if has_claude_credentials():
+            choice = "claude"
+        elif deepl_key():
+            choice = "deepl"
+        elif cfg.allow_unofficial_google:
+            choice = "google"
+        else:
+            return NoTranslator()
     if choice == "claude":
         return ClaudeTranslator(cfg.claude_model, cfg.claude_effort)
     if choice == "deepl":
@@ -128,4 +173,8 @@ def create_translator(cfg: Config) -> Translator:
         if not key:
             raise RuntimeError("translator is 'deepl' but DEEPL_API_KEY is not set")
         return DeepLTranslator(key)
-    return GoogleFreeTranslator()
+    if choice == "google":
+        if not cfg.allow_unofficial_google:
+            raise RuntimeError("the keyless Google endpoint is off; set allow_unofficial_google in config.json")
+        return GoogleFreeTranslator()
+    raise RuntimeError(f"unknown translator '{choice}'")
