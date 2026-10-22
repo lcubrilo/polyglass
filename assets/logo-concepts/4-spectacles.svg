@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- The Look: a face made only of spectacles and eyebrows. One lens is puzzled, the other gets it. -->
+  <rect width="256" height="256" rx="56" fill="#fbbf24"/>
+  <path d="M58 82 q26 -24 54 -6" fill="none" stroke="#1c1917" stroke-width="12" stroke-linecap="round"/>
+  <path d="M146 76 q26 -2 52 6" fill="none" stroke="#1c1917" stroke-width="12" stroke-linecap="round"/>
+  <g stroke="#1c1917" stroke-width="11" fill="#fffbeb">
+    <circle cx="86" cy="132" r="40"/>
+    <circle cx="172" cy="132" r="40"/>
+  </g>
+  <path d="M120 126 q8 -10 16 0" fill="none" stroke="#1c1917" stroke-width="10" stroke-linecap="round"/>
+  <path d="M46 124 L22 112 M212 124 L236 112" stroke="#1c1917" stroke-width="10" stroke-linecap="round"/>
+  <text x="86" y="150" font-family="Yu Gothic, Microsoft YaHei" font-weight="800" font-size="48" fill="#a8a29e" text-anchor="middle">文</text>
+  <text x="172" y="152" font-family="Georgia, serif" font-weight="700" font-size="56" fill="#1c1917" text-anchor="middle">A</text>
+  <path d="M104 206 q24 14 48 0" fill="none" stroke="#1c1917" stroke-width="9" stroke-linecap="round"/>
+</svg>

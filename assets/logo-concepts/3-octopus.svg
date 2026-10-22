@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Glotto: an octopus in round glasses. Many arms = many languages, and octopuses
+       match the colours around them, like the overlay does. -->
+  <defs><linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0891b2"/><stop offset="1" stop-color="#164e63"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="url(#sea)"/>
+  <g fill="none" stroke="#fb7185" stroke-width="17" stroke-linecap="round">
+    <path d="M86 160 C72 196 50 192 44 210"/>
+    <path d="M110 168 C108 204 88 210 92 236"/>
+    <path d="M146 168 C148 204 168 210 164 236"/>
+    <path d="M170 160 C184 196 206 192 212 210"/>
+  </g>
+  <path d="M64 140 C60 64 196 64 192 140 C190 166 168 172 128 172 C88 172 66 166 64 140 Z" fill="#fb7185"/>
+  <circle cx="84" cy="148" r="8" fill="#fda4af"/>
+  <circle cx="172" cy="148" r="8" fill="#fda4af"/>
+  <g stroke="#1e293b" stroke-width="6">
+    <circle cx="104" cy="122" r="22" fill="#ffffff" fill-opacity="0.85"/>
+    <circle cx="152" cy="122" r="22" fill="#ffffff" fill-opacity="0.85"/>
+    <path d="M126 118 q2 -5 4 0" fill="none"/>
+  </g>
+  <circle cx="108" cy="125" r="8" fill="#1e293b"/>
+  <circle cx="156" cy="125" r="8" fill="#1e293b"/>
+  <circle cx="111" cy="121" r="3" fill="#fff"/>
+  <circle cx="159" cy="121" r="3" fill="#fff"/>
+  <path d="M118 152 q10 8 20 0" fill="none" stroke="#1e293b" stroke-width="5" stroke-linecap="round"/>
+  <g transform="rotate(-10 38 218)">
+    <rect x="20" y="200" width="36" height="36" rx="9" fill="#fff"/>
+    <text x="38" y="230" font-family="Segoe UI" font-weight="800" font-size="26" fill="#0e7490" text-anchor="middle">A</text>
+  </g>
+  <g transform="rotate(10 218 218)">
+    <rect x="200" y="200" width="36" height="36" rx="9" fill="#fff"/>
+    <text x="218" y="229" font-family="Yu Gothic, Microsoft YaHei" font-weight="800" font-size="24" fill="#0e7490" text-anchor="middle">文</text>
+  </g>
+</svg>

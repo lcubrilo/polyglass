@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+<!-- Rose window: a cathedral stained-glass rosette whose panes hold eight scripts. -->
+<rect width="256" height="256" rx="56" fill="#111827"/>
+<path d="M114.2 94.7 L88.2 31.9 A104 104 0 0 1 167.8 31.9 L141.8 94.7 A36 36 0 0 0 114.2 94.7 Z" fill="#dc2626" stroke="#111827" stroke-width="6" stroke-linejoin="round"/>
+<text x="128.0" y="66.0" font-family="Segoe UI" font-weight="800" font-size="28" fill="#fff" text-anchor="middle">A</text>
+<path d="M141.8 94.7 L167.8 31.9 A104 104 0 0 1 224.1 88.2 L161.3 114.2 A36 36 0 0 0 141.8 94.7 Z" fill="#f59e0b" stroke="#111827" stroke-width="6" stroke-linejoin="round"/>
+<text x="178.9" y="87.1" font-family="Yu Gothic" font-weight="800" font-size="28" fill="#fff" text-anchor="middle">文</text>
+<path d="M161.3 114.2 L224.1 88.2 A104 104 0 0 1 224.1 167.8 L161.3 141.8 A36 36 0 0 0 161.3 114.2 Z" fill="#16a34a" stroke="#111827" stroke-width="6" stroke-linejoin="round"/>
+<text x="200.0" y="138.0" font-family="Segoe UI" font-weight="800" font-size="28" fill="#fff" text-anchor="middle">Ж</text>
+<path d="M161.3 141.8 L224.1 167.8 A104 104 0 0 1 167.8 224.1 L141.8 161.3 A36 36 0 0 0 161.3 141.8 Z" fill="#0891b2" stroke="#111827" stroke-width="6" stroke-linejoin="round"/>
+<text x="178.9" y="188.9" font-family="Segoe UI" font-weight="800" font-size="28" fill="#fff" text-anchor="middle">α</text>
+<path d="M141.8 161.3 L167.8 224.1 A104 104 0 0 1 88.2 224.1 L114.2 161.3 A36 36 0 0 0 141.8 161.3 Z" fill="#2563eb" stroke="#111827" stroke-width="6" stroke-linejoin="round"/>
+<text x="128.0" y="210.0" font-family="Segoe UI" font-weight="800" font-size="28" fill="#fff" text-anchor="middle">ع</text>
+<path d="M114.2 161.3 L88.2 224.1 A104 104 0 0 1 31.9 167.8 L94.7 141.8 A36 36 0 0 0 114.2 161.3 Z" fill="#7c3aed" stroke="#111827" stroke-width="6" stroke-linejoin="round"/>
+<text x="77.1" y="188.9" font-family="Yu Gothic" font-weight="800" font-size="28" fill="#fff" text-anchor="middle">あ</text>
+<path d="M94.7 141.8 L31.9 167.8 A104 104 0 0 1 31.9 88.2 L94.7 114.2 A36 36 0 0 0 94.7 141.8 Z" fill="#db2777" stroke="#111827" stroke-width="6" stroke-linejoin="round"/>
+<text x="56.0" y="138.0" font-family="Malgun Gothic" font-weight="800" font-size="28" fill="#fff" text-anchor="middle">한</text>
+<path d="M94.7 114.2 L31.9 88.2 A104 104 0 0 1 88.2 31.9 L114.2 94.7 A36 36 0 0 0 94.7 114.2 Z" fill="#ea580c" stroke="#111827" stroke-width="6" stroke-linejoin="round"/>
+<text x="77.1" y="87.1" font-family="Nirmala UI" font-weight="800" font-size="28" fill="#fff" text-anchor="middle">अ</text>
+<circle cx="128" cy="128" r="33" fill="#fde68a" stroke="#111827" stroke-width="6"/>
+<circle cx="128" cy="128" r="106" fill="none" stroke="#111827" stroke-width="8"/>
+<text x="128" y="143" font-family="Georgia" font-weight="700" font-size="44" fill="#111827" text-anchor="middle">P</text></svg>

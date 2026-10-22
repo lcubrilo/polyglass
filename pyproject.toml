@@ -27,6 +27,7 @@ dependencies = [
     "PySide6-Essentials>=6.8",
     "anthropic>=1.0",
     "deepl>=1.20",
+    "keyring>=25",
     "winrt-runtime>=3.0",
     "winrt-Windows.Foundation>=3.0",
     "winrt-Windows.Foundation.Collections>=3.0",
@@ -37,13 +38,16 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6", "pre-commit>=3"]
+dev = ["pytest>=8", "ruff>=0.6", "pre-commit>=3", "pyinstaller>=6.10"]
 
 [project.gui-scripts]
 polyglass = "polyglass.app:main"
 
 [tool.setuptools.packages.find]
 include = ["polyglass*"]
+
+[tool.setuptools.package-data]
+polyglass = ["resources/*"]
 
 [tool.ruff]
 line-length = 120

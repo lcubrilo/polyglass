@@ -6,6 +6,7 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
 from .config import Config, deepl_key, has_claude_credentials
+from .keys import get_key
 
 LANGUAGE_NAMES = {
     "en": "English",
@@ -102,7 +103,8 @@ class ClaudeTranslator(Translator):
         import anthropic
 
         self._anthropic = anthropic
-        self._client = anthropic.Anthropic()
+        key = get_key("anthropic")  # environment or Credential Manager; else the SDK's own lookup
+        self._client = anthropic.Anthropic(api_key=key) if key else anthropic.Anthropic()
         self._model = model
         self._effort = effort
 
@@ -145,7 +147,7 @@ class NoTranslator(Translator):
     name = "none"
 
     def translate(self, texts, source, target, context):
-        raise RuntimeError("No translator is set up. Set DEEPL_API_KEY or ANTHROPIC_API_KEY and restart Polyglass.")
+        raise RuntimeError("No translator is set up yet: add a DeepL or Claude key in Settings.")
 
 
 def available_translators(cfg: Config) -> list[str]:

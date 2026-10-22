@@ -32,6 +32,7 @@ class Overlay(QWidget):
         self.setAttribute(Qt.WA_ShowWithoutActivating)
         self.setGeometry(region)
         self._blocks: list[TextBlock] = []
+        self.show_frame = True
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -45,7 +46,8 @@ class Overlay(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setRenderHint(QPainter.TextAntialiasing)
-        self._paint_corners(painter)
+        if self.show_frame:
+            self._paint_corners(painter)
         for block in self._blocks:
             if block.translation:
                 self._paint_block(painter, block)

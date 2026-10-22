@@ -28,7 +28,7 @@ def test_google_is_used_when_allowed(no_credentials):
 
 
 def test_no_translator_explains_itself():
-    with pytest.raises(RuntimeError, match="DEEPL_API_KEY"):
+    with pytest.raises(RuntimeError, match="Settings"):
         NoTranslator().translate(["x"], "fr-FR", "en", [])
 
 

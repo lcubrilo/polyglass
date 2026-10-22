@@ -1,3 +1,3 @@
-from .app import main
+from polyglass.app import main
 
 main()

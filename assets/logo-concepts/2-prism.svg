@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Prism: one beam of text goes in, many scripts come out (poly + glass). -->
+  <rect width="256" height="256" rx="56" fill="#0b1020"/>
+  <polygon points="18,152 98,114 98,122" fill="#ffffff"/>
+  <g opacity="0.9">
+    <polygon points="158,110 222,66 222,80 160,116" fill="#f43f5e"/>
+    <polygon points="160,116 222,104 222,118 162,122" fill="#f59e0b"/>
+    <polygon points="162,122 222,146 222,160 164,128" fill="#22c55e"/>
+    <polygon points="164,128 222,186 222,200 166,134" fill="#3b82f6"/>
+  </g>
+  <polygon points="128,48 196,182 60,182" fill="#e0f2fe" fill-opacity="0.18" stroke="#e0f2fe" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="128,48 150,92 108,92" fill="#ffffff" fill-opacity="0.25"/>
+  <g font-weight="800" font-size="28" text-anchor="middle">
+    <text x="236" y="84" fill="#f43f5e" font-family="Segoe UI">A</text>
+    <text x="236" y="122" fill="#f59e0b" font-family="Yu Gothic, Microsoft YaHei">文</text>
+    <text x="236" y="164" fill="#22c55e" font-family="Segoe UI">Ж</text>
+    <text x="236" y="206" fill="#3b82f6" font-family="Segoe UI">ع</text>
+  </g>
+</svg>

@@ -16,3 +16,6 @@ def log_dir() -> Path:
     path = Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local") / APP_NAME / "logs"
     path.mkdir(parents=True, exist_ok=True)
     return path
+
+
+REPO_URL = "https://github.com/lcubrilo/polyglass"

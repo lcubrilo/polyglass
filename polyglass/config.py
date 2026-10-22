@@ -1,4 +1,4 @@
-"""User settings, stored as JSON in %APPDATA%\\Polyglass. API keys come from the environment, never this file."""
+"""User settings, stored as JSON in %APPDATA%\\Polyglass. API keys live in keys.py, never in this file."""
 
 import json
 import logging
@@ -6,6 +6,7 @@ import os
 from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 
+from .keys import get_key
 from .paths import config_dir
 
 log = logging.getLogger(__name__)
@@ -34,6 +35,10 @@ class Config:
     hotkey_select: str = "Ctrl+Alt+L"
     hotkey_toggle: str = "Ctrl+Alt+K"
     hotkey_stop: str = "Ctrl+Alt+X"
+    # Corner marks around the watched area
+    show_frame: bool = True
+    # Ask GitHub once a day whether a newer release exists
+    check_updates: bool = True
 
     @classmethod
     def path(cls) -> Path:
@@ -74,12 +79,12 @@ def _migrate(data: dict) -> dict:
 
 
 def deepl_key() -> str | None:
-    return os.environ.get("DEEPL_API_KEY") or None
+    return get_key("deepl")
 
 
 def has_claude_credentials() -> bool:
     return bool(
-        os.environ.get("ANTHROPIC_API_KEY")
+        get_key("anthropic")
         or os.environ.get("ANTHROPIC_AUTH_TOKEN")
         or os.environ.get("ANTHROPIC_PROFILE")
         or (Path.home() / ".config" / "anthropic").exists()

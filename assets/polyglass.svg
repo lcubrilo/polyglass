@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Polyglass logo: Polly, a low-poly stained-glass parrot. Parrots repeat what they hear in any
+       language; the facets and lead lines are the "glass", the many colours the "poly". -->
+  <defs>
+    <radialGradient id="night" cx="0.3" cy="0.25" r="0.95">
+      <stop offset="0" stop-color="#1b2a5c"/>
+      <stop offset="1" stop-color="#0a1128"/>
+    </radialGradient>
+    <clipPath id="tile"><rect width="256" height="256" rx="56"/></clipPath>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#night)"/>
+  <g clip-path="url(#tile)" stroke="#0a1128" stroke-width="5" stroke-linejoin="round">
+    <!-- crest -->
+    <polygon points="98,62 80,24 112,52" fill="#f43f5e"/>
+    <polygon points="112,52 110,14 130,48" fill="#fb923c"/>
+    <polygon points="130,48 142,20 144,46" fill="#facc15"/>
+    <!-- head -->
+    <polygon points="98,62 144,46 126,100" fill="#ef4444"/>
+    <polygon points="144,46 184,70 126,100" fill="#f97316"/>
+    <polygon points="126,100 184,70 178,130" fill="#facc15"/>
+    <polygon points="98,62 126,100 70,128" fill="#b91c1c"/>
+    <!-- neck and chest -->
+    <polygon points="70,128 126,100 114,170" fill="#22c55e"/>
+    <polygon points="126,100 178,130 114,170" fill="#a3e635"/>
+    <polygon points="114,170 178,130 186,214" fill="#14b8a6"/>
+    <polygon points="70,128 114,170 58,206" fill="#0ea5e9"/>
+    <polygon points="58,206 114,170 186,214 150,262 50,262" fill="#3b82f6"/>
+    <!-- wing -->
+    <polygon points="58,206 50,262 22,262" fill="#6366f1"/>
+    <!-- beak -->
+    <polygon points="182,72 216,80 236,104 232,132 214,142 206,120 178,128" fill="#f1f5f9"/>
+    <polygon points="232,132 214,142 206,120" fill="#94a3b8"/>
+    <polygon points="178,128 206,122 214,142 190,156" fill="#334155"/>
+  </g>
+  <!-- glass sheen -->
+  <polygon points="100,64 142,50 116,82" fill="#ffffff" fill-opacity="0.22"/>
+  <polygon points="188,78 212,84 196,92" fill="#ffffff" fill-opacity="0.5"/>
+  <!-- eye with a bare eye-ring, like a real parrot -->
+  <circle cx="150" cy="90" r="15" fill="#f8fafc" stroke="#0a1128" stroke-width="4"/>
+  <circle cx="153" cy="90" r="7" fill="#0a1128"/>
+  <circle cx="156" cy="87" r="2.4" fill="#ffffff"/>
+</svg>
