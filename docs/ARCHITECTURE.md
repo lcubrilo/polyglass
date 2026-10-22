@@ -24,8 +24,20 @@ module, so an OCR engine or translator can be swapped without touching the rest.
 | `translate.py` | Translators behind one interface: Claude (structured JSON output, earlier blocks as context), DeepL, and an opt-in unofficial Google endpoint. |
 | `ui.py` | The overlay window (click-through, always on top, excluded from screen capture) and the drag-to-select picker. |
 | `hotkeys.py` | System-wide hotkeys through Win32 `RegisterHotKey`, on a thread with its own message loop. |
-| `config.py` | Settings dataclass stored as JSON, with versioned migrations. API keys come only from environment variables. |
+| `config.py` | Settings dataclass stored as JSON, with versioned migrations. Never holds API keys. |
+| `keys.py` | API keys: environment variable first, otherwise Windows Credential Manager (via `keyring`). |
+| `settings_window.py` | The settings dialog: translator and languages, keys, hotkeys, frame, start with Windows, update check. |
+| `system.py` | Windows integration: start-with-Windows registry value, GitHub update check, pre-filled bug reports (3 a day). |
 | `paths.py`, `logs.py` | Where files live (`%APPDATA%`, `%LOCALAPPDATA%`), the rotating log file and the unhandled-exception hooks. |
+
+## Building and releasing
+
+- `tools/build_icons.py` renders `assets/polyglass.svg` into the app and installer icons.
+- `polyglass.spec` (PyInstaller) bundles the app into `dist/Polyglass/Polyglass.exe`.
+- `installer/polyglass.iss` (Inno Setup) wraps that folder into a per-user installer.
+- Pushing a `vX.Y.Z` tag runs `.github/workflows/release.yml`, which tests, builds both and publishes a
+  GitHub release with the installer and a portable zip.
+- `tools/third_party_notices.py` regenerates `THIRD_PARTY_NOTICES.md` after dependency changes.
 
 ## Design decisions
 

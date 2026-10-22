@@ -16,12 +16,17 @@ Polyglass looks at your screen, so here is exactly what happens to what it sees.
   earlier text blocks from the same session are included as context so translations stay consistent. Each
   service handles that text under its own terms:
   [Anthropic](https://www.anthropic.com/legal/privacy) · [DeepL](https://www.deepl.com/privacy).
-- **API keys** go only to the service they belong to. Polyglass reads them from environment variables and
-  never writes them to its own files or logs.
+- **API keys** go only to the service they belong to. They are kept in Windows Credential Manager (or
+  read from environment variables) and never written to Polyglass's own files or logs.
+- **Update check** (can be turned off in Settings): when Polyglass starts, it asks GitHub for the latest
+  release version. The request contains nothing about you or your screen.
+- **Bug reports** happen only when you click "Report on GitHub" after an error. That opens a pre-filled
+  GitHub issue in your browser with the error and the end of the log; nothing is sent until you review it
+  and submit it yourself. At most three a day can be started.
 
 ## Never
 
-- No telemetry, analytics, usage statistics or crash reports are sent anywhere.
+- No telemetry, analytics or usage statistics, and no crash reports unless you choose to send one.
 - No account is needed.
 
 Offline translation, planned for a later version, will keep the text on your PC as well.

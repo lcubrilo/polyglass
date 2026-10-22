@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/polyglass-512.png" width="128" alt="Polyglass logo: Polly, a stained-glass parrot"></p>
+
 # Polyglass
 
 **Live on-screen translation for Windows.** Pick any area of the screen. Polyglass keeps reading it and
@@ -22,20 +24,18 @@ It works on anything you can see: apps, games, videos with burned-in subtitles, 
 | **Ctrl+Alt+K** | Hide/show the overlay to peek at the original |
 | **Ctrl+Alt+X** | Stop watching |
 
-Everything else is in the tray menu: source and target language, translator, log folder.
+Everything else is in the tray menu and the **Settings** window: translator, languages, API keys, hotkeys,
+the corner marks around the watched area, and starting with Windows.
 
 ## Translators
 
 | Translator | Needs | Notes |
 |---|---|---|
-| Claude | `ANTHROPIC_API_KEY` environment variable | Best with context and slang; model and effort configurable |
-| DeepL | `DEEPL_API_KEY` environment variable | The free plan covers 500,000 characters a month |
+| Claude | an Anthropic API key | Best with context and slang; model and effort configurable |
+| DeepL | a DeepL API key | The free plan covers 500,000 characters a month |
 
-Set a key once in PowerShell, then restart Polyglass:
-
-```powershell
-[Environment]::SetEnvironmentVariable("DEEPL_API_KEY", "<your key>", "User")
-```
+Paste your key in **Settings → Keys**. It is stored in Windows Credential Manager, never in Polyglass's own
+files. The `ANTHROPIC_API_KEY` and `DEEPL_API_KEY` environment variables work too and take precedence.
 
 Offline translation (downloadable language packs, no key needed) is planned.
 
@@ -52,10 +52,15 @@ chose. Polyglass has no telemetry. Details in [docs/PRIVACY.md](docs/PRIVACY.md)
 
 ## Install
 
-Installers are coming with the first release. Until then, from source (Python 3.11+):
+Download `Polyglass-<version>-setup.exe` from the [releases page](https://github.com/lcubrilo/polyglass/releases)
+and run it. It installs for your user only, so no administrator rights are needed. Windows may warn that the
+installer is from an unknown publisher because it isn't code-signed yet: choose **More info → Run anyway**.
+A portable zip is there too.
+
+From source (Python 3.11+):
 
 ```powershell
-git clone <repository url> polyglass
+git clone https://github.com/lcubrilo/polyglass
 cd polyglass
 py -3.11 -m venv .venv
 .venv\Scripts\pip install -e .

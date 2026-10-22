@@ -1,0 +1,16 @@
+# Windows file properties for Polyglass.exe (Details tab). Kept in sync by tools/set_version.py.
+VSVersionInfo(
+  ffi=FixedFileInfo(filevers=(0, 1, 0, 0), prodvers=(0, 1, 0, 0)),
+  kids=[
+    StringFileInfo([StringTable('040904B0', [
+      StringStruct('CompanyName', 'Polyglass'),
+      StringStruct('FileDescription', 'Polyglass - live on-screen translation'),
+      StringStruct('FileVersion', '0.1.0'),
+      StringStruct('InternalName', 'Polyglass'),
+      StringStruct('LegalCopyright', 'GNU GPL v3 or later'),
+      StringStruct('OriginalFilename', 'Polyglass.exe'),
+      StringStruct('ProductName', 'Polyglass'),
+      StringStruct('ProductVersion', '0.1.0')])]),
+    VarFileInfo([VarStruct('Translation', [1033, 1200])])
+  ]
+)

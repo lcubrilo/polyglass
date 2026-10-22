@@ -385,6 +385,11 @@ class PolyglassApp:
 
 def main():
     qt_app = QApplication(sys.argv)
+    if "--selftest" in sys.argv:
+        from .selftest import run
+
+        setup_logging()
+        sys.exit(run())
     if notify_running_instance():
         sys.exit(0)
     sys.exit(PolyglassApp(qt_app).run())

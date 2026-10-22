@@ -37,6 +37,13 @@ skipped where it isn't installed.
 Keep pull requests focused on one change, add or update tests for behaviour changes, and add a line under
 "Unreleased" in [CHANGELOG.md](CHANGELOG.md) when users will notice the difference.
 
+## Releasing (maintainers)
+
+1. Move the "Unreleased" notes in CHANGELOG.md under a new version heading.
+2. Set the same version in `pyproject.toml` and `installer/version_info.txt`.
+3. Commit, then tag and push: `git tag v0.2.0 && git push origin main v0.2.0`.
+4. The Release workflow tests, builds the installer and publishes the GitHub release.
+
 ## Licensing of contributions
 
 Polyglass is licensed under the GNU GPL v3 or later. By submitting a contribution you agree that it is

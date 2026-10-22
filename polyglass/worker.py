@@ -106,8 +106,13 @@ class Worker(threading.Thread):
 
     def _translate(self, texts: list[str]):
         keys = [_normalize(t) for t in texts]
+        started = time.monotonic()
         try:
             results = self.translator.translate(texts, self.ocr_lang, self.target, list(self._context))
+            # Counts and timing only: translated text never goes to the log (see docs/PRIVACY.md)
+            log.info(
+                "Translated %d blocks via %s in %.1fs", len(texts), self.translator.name, time.monotonic() - started
+            )
             with self._lock:
                 for key, src, result in zip(keys, texts, results, strict=True):
                     self._cache[key] = result

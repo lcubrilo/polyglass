@@ -5,6 +5,17 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Logo: Polly, a stained-glass parrot, as the app, tray and installer icon.
+- Settings window: translator, languages, Claude model and effort, API keys, hotkeys, corner marks, start
+  with Windows, update check. It opens by itself on first run when no translator is set up.
+- API keys are stored in Windows Credential Manager.
+- Update check at startup (can be turned off) and a "Report on GitHub" button in the error dialog that
+  opens a pre-filled issue, at most three a day.
+- Windows installer (per user, no admin rights) and portable zip, built and published automatically when a
+  version tag is pushed.
+
 ## [0.1.0] - 2026-10-20
 
 First working version.
