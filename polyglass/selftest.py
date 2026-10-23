@@ -42,6 +42,9 @@ def run() -> int:
 
     blocks = build_blocks(frame, WindowsOcr(tag).recognize(np.ascontiguousarray(frame), asyncio.new_event_loop()))
     found = " ".join(b.text for b in blocks)
-    ok = len(blocks) == 2 and heading.split()[0] in found and body.split()[0] in found
+    # Windows OCR sometimes drops a line's first letter (e.g. "elcome"), so compare words, not exact text
+    expected = {w.strip(".,'").lower() for w in f"{heading} {body}".split()}
+    read = {w.strip(".,'").lower() for w in found.split()}
+    ok = len(blocks) == 2 and len(expected & read) >= 0.8 * len(expected)
     log.info("Self-test with %s: %d blocks, %s", tag, len(blocks), "passed" if ok else f"failed: {found!r}")
     return 0 if ok else 1
