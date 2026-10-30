@@ -5,7 +5,13 @@ import pytest
 
 from polyglass import translate
 from polyglass.config import Config
-from polyglass.translate import ClaudeTranslator, NoTranslator, available_translators, create_translator
+from polyglass.translate import (
+    ClaudeTranslator,
+    GoogleFreeTranslator,
+    NoTranslator,
+    available_translators,
+    create_translator,
+)
 
 
 @pytest.fixture
@@ -67,3 +73,17 @@ def test_claude_refusal_is_an_error():
     translator, _ = fake_claude([], stop_reason="refusal")
     with pytest.raises(RuntimeError, match="declined"):
         translator.translate(["a"], "fr-FR", "en", [])
+
+
+def test_google_falls_back_to_detection_when_a_language_code_returns_nothing(monkeypatch):
+    calls = []
+
+    def fake_request(self, text, sl, tl):
+        calls.append(sl)
+        return "" if sl == "sr" else "Today we talk about trains."
+
+    monkeypatch.setattr(GoogleFreeTranslator, "_request", fake_request)
+    assert GoogleFreeTranslator().translate(["Danas pričamo o vozovima."], "sr", "en", []) == [
+        "Today we talk about trains."
+    ]
+    assert calls == ["sr", "auto"]

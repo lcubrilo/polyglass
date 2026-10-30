@@ -52,7 +52,12 @@ class GoogleFreeTranslator(Translator):
         self._pool = ThreadPoolExecutor(max_workers=4)
 
     def _one(self, text: str, source: str, target: str) -> str:
-        url = self.URL.format(sl=iso(source), tl=iso(target))
+        result = self._request(text, iso(source), iso(target))
+        # Some codes only accept one script: "sr" returns nothing for Latin-script Serbian. Let Google detect it.
+        return result if result.strip() else self._request(text, "auto", iso(target))
+
+    def _request(self, text: str, sl: str, tl: str) -> str:
+        url = self.URL.format(sl=sl, tl=tl)
         body = urllib.parse.urlencode({"q": text}).encode()
         with urllib.request.urlopen(urllib.request.Request(url, data=body), timeout=10) as resp:
             data = json.loads(resp.read().decode("utf-8"))
