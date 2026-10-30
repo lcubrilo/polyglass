@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "polyglass"
-version = "0.1.0"
+version = "0.2.0"
 description = "Live on-screen translation for Windows: pick an area, Polyglass reads it and paints the translation over the original text."
 readme = "README.md"
 license = "GPL-3.0-or-later"

@@ -5,6 +5,24 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-30
+
+### Added
+
+- Live captions (Ctrl+Alt+S, or the tray menu): speech in whatever the PC is playing is transcribed on the
+  PC with Whisper (faster-whisper) and shown as translated subtitles at the bottom of the screen. Off by
+  default. Runs on an NVIDIA GPU when the CUDA libraries are available (`pip install -e ".[gpu]"` from
+  source), otherwise on the CPU. The speech model downloads once on first use.
+- Settings → Live captions: language spoken (or automatic detection), speech model size, GPU or CPU.
+- The self-test (`Polyglass.exe --selftest`) also checks that the speech libraries load.
+- README: running from source, a script that creates a desktop or Start Menu shortcut
+  (`tools/create_shortcut.ps1`), and how to translate a video's subtitles.
+
+### Fixed
+
+- The unofficial Google translator returned nothing for Serbian written in Latin script; it now falls back
+  to Google's language detection.
+
 ## [0.1.0] - 2026-10-22
 
 First public release.
