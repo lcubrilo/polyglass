@@ -24,6 +24,17 @@ It works on anything you can see: apps, games, videos with burned-in subtitles, 
 | **Ctrl+Alt+K** | Hide/show the overlay to peek at the original |
 | **Ctrl+Alt+X** | Stop watching |
 
+### Translating a video's subtitles
+
+1. Start the video. Fullscreen or windowed both work.
+2. Press **Ctrl+Alt+L** and drag a box over the strip where the subtitles appear. Make it a bit taller than
+   one line so two-line subtitles fit.
+3. Each new subtitle is read and its translation painted over it as it appears. Press **Ctrl+Alt+K** to peek
+   at the original, and **Ctrl+Alt+X** to stop.
+
+Set the subtitle language under **Settings → Translation → Translate from**, and install its Windows OCR language
+(see [Languages](#languages)).
+
 Everything else is in the tray menu and the **Settings** window: translator, languages, API keys, hotkeys,
 the corner marks around the watched area, and starting with Windows.
 
