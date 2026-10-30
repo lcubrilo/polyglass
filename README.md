@@ -57,17 +57,37 @@ and run it. It installs for your user only, so no administrator rights are neede
 installer is from an unknown publisher because it isn't code-signed yet: choose **More info → Run anyway**.
 A portable zip is there too.
 
-From source (Python 3.11+):
+Settings live in `%APPDATA%\Polyglass\config.json`, logs in `%LOCALAPPDATA%\Polyglass\logs`.
+
+## Run from source (for developers)
+
+You need Windows 10/11, [Python 3.11+](https://www.python.org/downloads/windows/) (with the `py` launcher,
+the installer's default) and [Git](https://git-scm.com/download/win). In PowerShell:
 
 ```powershell
 git clone https://github.com/lcubrilo/polyglass
 cd polyglass
 py -3.11 -m venv .venv
-.venv\Scripts\pip install -e .
-.venv\Scripts\pythonw -m polyglass
+.venv\Scripts\pip install -e ".[dev]"
+.venv\Scripts\python -m polyglass
 ```
 
-Settings live in `%APPDATA%\Polyglass\config.json`, logs in `%LOCALAPPDATA%\Polyglass\logs`.
+Clone into a short path such as `C:\src\polyglass`: Qt's deeply nested files can hit Windows' 260-character
+path limit during `pip install` in very deep folders.
+
+The last line runs Polyglass with a console, so you see its log output. Close it from the tray icon.
+
+To start it like a normal app, create a **Polyglass (dev)** shortcut on your desktop (add `-StartMenu` to
+also put it in the Start Menu):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\create_shortcut.ps1
+```
+
+The shortcut runs your checkout without a console window, so code changes take effect on the next start.
+To update, `git pull` and, if `pyproject.toml` changed, run the `pip install` line again.
+
+Tests, lint and building the installer are covered in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Contributing
 

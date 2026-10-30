@@ -37,6 +37,18 @@ skipped where it isn't installed.
 Keep pull requests focused on one change, add or update tests for behaviour changes, and add a line under
 "Unreleased" in [CHANGELOG.md](CHANGELOG.md) when users will notice the difference.
 
+## Building the installer locally
+
+```powershell
+.venv\Scripts\pyinstaller --noconfirm polyglass.spec        # dist\Polyglass\Polyglass.exe
+dist\Polyglass\Polyglass.exe --selftest                      # reads a sample page through the packaged OCR
+winget install JRSoftware.InnoSetup                          # once
+& "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" /DAppVersion=0.1.0 installer\polyglass.iss
+```
+
+The installer lands in `dist\`. The self-test exits with 0 on success and 2 when neither the French nor the
+English Windows OCR language is installed.
+
 ## Releasing (maintainers)
 
 1. Move the "Unreleased" notes in CHANGELOG.md under a new version heading.
