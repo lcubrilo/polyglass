@@ -1,4 +1,4 @@
-"""Qt windows: the click-through translation overlay and the drag-to-select area picker.
+"""Qt windows: the click-through translation and caption overlays, and the drag-to-select area picker.
 
 Qt runs with high-DPI scaling disabled (see app.py), so every coordinate here is a physical screen
 pixel, the same space mss captures in.
@@ -6,8 +6,8 @@ pixel, the same space mss captures in.
 
 import ctypes
 
-from PySide6.QtCore import QPoint, QRect, Qt, Signal
-from PySide6.QtGui import QColor, QFont, QFontMetrics, QGuiApplication, QPainter, QPen
+from PySide6.QtCore import QPoint, QRect, Qt, QTimer, Signal
+from PySide6.QtGui import QColor, QCursor, QFont, QFontMetrics, QGuiApplication, QPainter, QPen
 from PySide6.QtWidgets import QWidget
 
 from .layout import TextBlock
@@ -16,7 +16,7 @@ WDA_EXCLUDEFROMCAPTURE = 0x11
 FONT_FAMILY = "Segoe UI"
 
 
-class Overlay(QWidget):
+class ClickThroughWindow(QWidget):
     """Always on top, ignores the mouse, and is invisible to screen capture so OCR never reads it."""
 
     def __init__(self, region: QRect):
@@ -31,12 +31,19 @@ class Overlay(QWidget):
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setAttribute(Qt.WA_ShowWithoutActivating)
         self.setGeometry(region)
-        self._blocks: list[TextBlock] = []
-        self.show_frame = True
 
     def showEvent(self, event):
         super().showEvent(event)
         ctypes.windll.user32.SetWindowDisplayAffinity(int(self.winId()), WDA_EXCLUDEFROMCAPTURE)
+
+
+class Overlay(ClickThroughWindow):
+    """Paints translations over the original text in the watched area."""
+
+    def __init__(self, region: QRect):
+        super().__init__(region)
+        self._blocks: list[TextBlock] = []
+        self.show_frame = True
 
     def set_blocks(self, blocks: list[TextBlock]):
         self._blocks = blocks
@@ -93,6 +100,84 @@ class Overlay(QWidget):
         painter.setFont(font)
         painter.setPen(QColor(*block.foreground))
         painter.drawText(text_rect, flags, block.translation)
+
+
+class CaptionOverlay(ClickThroughWindow):
+    """Live captions: the latest lines, centred near the bottom of a screen, like subtitles. Lines not yet
+    translated show in grey until their translation arrives."""
+
+    LINES = 2
+    CLEAR_AFTER_MS = 8000
+
+    def __init__(self, screen_area: QRect):
+        width, height = round(screen_area.width() * 0.8), round(screen_area.height() * 0.3)
+        super().__init__(
+            QRect(
+                screen_area.x() + (screen_area.width() - width) // 2,
+                screen_area.bottom() - height - round(screen_area.height() * 0.07),
+                width,
+                height,
+            )
+        )
+        self.font_size = max(18, screen_area.height() // 34)
+        self._captions: dict = {}  # id -> caption, oldest first
+        self._status = ""
+        self._clear_timer = QTimer(self, singleShot=True, interval=self.CLEAR_AFTER_MS)
+        self._clear_timer.timeout.connect(self.clear)
+
+    def set_status(self, text: str, fade: bool = False):
+        """A grey line under the captions, e.g. while the speech model downloads. It goes when captions arrive,
+        or after a few seconds when fade is set."""
+        self._status = text
+        if fade:
+            self._clear_timer.start()
+        else:
+            self._clear_timer.stop()
+        self.update()
+
+    def set_caption(self, caption):
+        self._status = ""
+        self._captions[caption.id] = caption
+        while len(self._captions) > self.LINES:
+            del self._captions[next(iter(self._captions))]
+        self._clear_timer.start()
+        self.update()
+
+    def clear(self):
+        self._captions = {}
+        self._status = ""
+        self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.TextAntialiasing)
+        lines = [(c.translation or c.text, c.translation is None) for c in self._captions.values()]
+        if self._status:
+            lines.append((self._status, True))
+        bottom = self.height()
+        for age, (text, pending) in enumerate(reversed(lines)):
+            bottom = self._paint_line(painter, text, pending, older=age > 0, bottom=bottom) - self.font_size // 3
+            if bottom <= 0:
+                break
+
+    def _paint_line(self, painter: QPainter, text: str, pending: bool, older: bool, bottom: int) -> int:
+        font = QFont(FONT_FAMILY)
+        font.setPixelSize(self.font_size)
+        font.setItalic(pending)
+        pad_x, pad_y = self.font_size // 2, self.font_size // 5
+        flags = Qt.AlignHCenter | Qt.TextWordWrap
+        needed = QFontMetrics(font).boundingRect(QRect(0, 0, self.width() - 2 * pad_x, 10_000), flags, text)
+        box = QRect(0, 0, needed.width() + 2 * pad_x, needed.height() + 2 * pad_y)
+        box.moveBottom(bottom)
+        box.moveLeft((self.width() - box.width()) // 2)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QColor(0, 0, 0, 150 if older else 185))
+        painter.drawRoundedRect(box, pad_y * 2, pad_y * 2)
+        painter.setFont(font)
+        painter.setPen(QColor(190, 190, 190) if pending else QColor(255, 255, 255, 200 if older else 255))
+        painter.drawText(box.adjusted(pad_x, pad_y, -pad_x, -pad_y), flags, text)
+        return box.top()
 
 
 class AreaPicker(QWidget):
@@ -156,3 +241,7 @@ class AreaPicker(QWidget):
 
 def screens():
     return QGuiApplication.screens()
+
+
+def screen_under_cursor():
+    return QGuiApplication.screenAt(QCursor.pos()) or QGuiApplication.primaryScreen()

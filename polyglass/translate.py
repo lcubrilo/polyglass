@@ -94,14 +94,14 @@ class DeepLTranslator(Translator):
 class ClaudeTranslator(Translator):
     name = "claude"
     SYSTEM = (
-        "You translate text captured from a screen with OCR. Each item is one block of text "
-        "(a paragraph, a label, a button, a menu entry) in reading order. Translate every item, "
-        "keep the same number of items in the same order, and keep each translation about as long "
-        "as its source so it fits the original space. Keep the line breaks inside an item: one "
-        "translated line per source line. Use the surrounding items and the earlier "
-        "context to pick the right meaning and keep terminology consistent. Silently fix obvious "
-        "OCR errors. Leave names, numbers, code and URLs unchanged. If an item is not in the source "
-        "language or is not real text, return it unchanged."
+        "You translate text captured from a screen with OCR, or live captions transcribed from speech. "
+        "Each item is one block of text (a paragraph, a label, a button, a menu entry, a spoken sentence) "
+        "in reading order. Translate every item, keep the same number of items in the same order, and "
+        "keep each translation about as long as its source so it fits the original space. Keep the "
+        "line breaks inside an item: one translated line per source line. Use the surrounding items "
+        "and the earlier context to pick the right meaning and keep terminology consistent. Silently "
+        "fix obvious OCR or speech recognition errors. Leave names, numbers, code and URLs unchanged. "
+        "If an item is not in the source language or is not real text, return it unchanged."
     )
 
     def __init__(self, model: str, effort: str):

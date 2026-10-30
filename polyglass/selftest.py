@@ -1,5 +1,6 @@
-"""`Polyglass.exe --selftest`: render a sample page and run it through OCR and layout, with no window or
-network. Exit code 0 means the packaged app can read text; used to check release builds."""
+"""`Polyglass.exe --selftest`: render a sample page and run it through OCR and layout, then load the speech
+stack, with no window or network. Exit code 0 means the packaged app can read text and has everything live
+captions need except the downloaded model; used to check release builds."""
 
 import asyncio
 import logging
@@ -47,4 +48,23 @@ def run() -> int:
     read = {w.strip(".,'").lower() for w in found.split()}
     ok = len(blocks) == 2 and len(expected & read) >= 0.8 * len(expected)
     log.info("Self-test with %s: %d blocks, %s", tag, len(blocks), "passed" if ok else f"failed: {found!r}")
-    return 0 if ok else 1
+    if not ok:
+        return 1
+    return 0 if speech_stack_loads() else 3
+
+
+def speech_stack_loads() -> bool:
+    """ctranslate2's native library, the voice-activity model on onnxruntime and the sound library all load.
+    The speech model itself downloads on first use, so it isn't checked here."""
+    try:
+        import ctranslate2
+        import soundcard  # noqa: F401
+        from faster_whisper.vad import get_vad_model
+
+        get_vad_model()
+        types = ctranslate2.get_supported_compute_types("cpu")
+    except Exception:
+        log.exception("Self-test: the speech stack failed to load")
+        return False
+    log.info("Self-test: speech stack loads (CPU compute types: %s)", ", ".join(sorted(types)))
+    return True

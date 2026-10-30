@@ -27,7 +27,9 @@ dependencies = [
     "PySide6-Essentials>=6.8",
     "anthropic>=1.0",
     "deepl>=1.20",
+    "faster-whisper>=1.1",
     "keyring>=25",
+    "soundcard>=0.4.4",
     "winrt-runtime>=3.0",
     "winrt-Windows.Foundation>=3.0",
     "winrt-Windows.Foundation.Collections>=3.0",
@@ -39,6 +41,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6", "pre-commit>=3", "pyinstaller>=6.10"]
+# Live captions on an NVIDIA GPU (CUDA 12 runtime libraries, about 1 GB)
+gpu = ["nvidia-cublas-cu12", "nvidia-cudnn-cu12>=9,<10"]
 
 [project.gui-scripts]
 polyglass = "polyglass.app:main"

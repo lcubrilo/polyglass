@@ -23,7 +23,7 @@ from .ocr import installed_languages  # noqa: E402
 from .paths import APP_NAME, REPO_URL, log_dir  # noqa: E402
 from .settings_window import SettingsWindow, ocr_language_label  # noqa: E402
 from .translate import LANGUAGE_NAMES, NoTranslator, available_translators, create_translator  # noqa: E402
-from .ui import AreaPicker, Overlay, screens  # noqa: E402
+from .ui import AreaPicker, CaptionOverlay, Overlay, screen_under_cursor, screens  # noqa: E402
 from .worker import Worker  # noqa: E402
 
 log = logging.getLogger(__name__)
@@ -41,7 +41,11 @@ class Bridge(QObject):
     select = Signal()
     toggle = Signal()
     stop = Signal()
+    captions = Signal()
     blocks = Signal(object)
+    caption = Signal(object)
+    caption_status = Signal(str, bool)
+    captions_stopped = Signal(object)
     error = Signal(str)
     crash = Signal(str)
     update = Signal(str, str)
@@ -74,6 +78,8 @@ class PolyglassApp:
         self.pickers: list[AreaPicker] = []
         self.overlay: Overlay | None = None
         self.worker: Worker | None = None
+        self.listener = None  # speech.Listener while live captions are on
+        self.caption_overlay: CaptionOverlay | None = None
         self.hotkeys: HotkeyListener | None = None
         self.settings_window: SettingsWindow | None = None
         self._update_url = ""
@@ -83,6 +89,10 @@ class PolyglassApp:
         self.bridge.select.connect(self.start_picking)
         self.bridge.toggle.connect(self.toggle_overlay)
         self.bridge.stop.connect(self.stop_watching)
+        self.bridge.captions.connect(self.toggle_captions)
+        self.bridge.caption.connect(self._on_caption)
+        self.bridge.caption_status.connect(self._on_caption_status)
+        self.bridge.captions_stopped.connect(self._on_listener_stopped)
         self.bridge.blocks.connect(self._on_blocks)
         self.bridge.error.connect(self._on_error)
         self.bridge.crash.connect(self._on_crash)
@@ -126,6 +136,7 @@ class PolyglassApp:
                 self.cfg.hotkey_select: self.bridge.select.emit,
                 self.cfg.hotkey_toggle: self.bridge.toggle.emit,
                 self.cfg.hotkey_stop: self.bridge.stop.emit,
+                self.cfg.hotkey_captions: self.bridge.captions.emit,
             }
         )
         self.hotkeys.start()
@@ -136,7 +147,8 @@ class PolyglassApp:
     def _status_text(self) -> str:
         status = (
             f"{self.cfg.hotkey_select}: pick an area · {self.cfg.hotkey_toggle}: show/hide · "
-            f"{self.cfg.hotkey_stop}: stop\nTranslator: {self.translator.name} · "
+            f"{self.cfg.hotkey_stop}: stop · {self.cfg.hotkey_captions}: live captions\n"
+            f"Translator: {self.translator.name} · "
             f"{self.cfg.source_lang} → {self.cfg.target_lang}"
         )
         if isinstance(self.translator, NoTranslator):
@@ -149,6 +161,9 @@ class PolyglassApp:
         menu.addAction(f"Pick area ({self.cfg.hotkey_select})", self.start_picking)
         menu.addAction(f"Show / hide ({self.cfg.hotkey_toggle})", self.toggle_overlay)
         menu.addAction(f"Stop ({self.cfg.hotkey_stop})", self.stop_watching)
+        captions = menu.addAction(f"Live captions ({self.cfg.hotkey_captions})", self.toggle_captions)
+        captions.setCheckable(True)
+        captions.setChecked(self._captions_on())
         menu.addSeparator()
         self._choice_menu(
             menu, "Translate from", installed_languages(), self.cfg.source_lang, ocr_language_label, self._set_source
@@ -201,6 +216,8 @@ class PolyglassApp:
         self._build_menu()
         if self.worker and self.overlay:
             self._start_worker(self.overlay.geometry())
+        if self._captions_on():
+            self._start_listener()
 
     def open_settings(self, tab: int = 0):
         if self.settings_window and self.settings_window.isVisible():
@@ -313,6 +330,72 @@ class PolyglassApp:
         if self.overlay and self.worker:
             self.overlay.set_blocks(blocks)
 
+    # ---- live captions ------------------------------------------------------------------------
+    def _captions_on(self) -> bool:
+        return self.listener is not None and self.listener.is_alive()
+
+    def toggle_captions(self):
+        if self._captions_on():
+            self._stop_listener()
+            self.caption_overlay.hide()
+            log.info("Live captions off")
+        else:
+            screen = screen_under_cursor().geometry()
+            if self.caption_overlay is None or not screen.contains(self.caption_overlay.geometry().center()):
+                if self.caption_overlay:
+                    self.caption_overlay.deleteLater()
+                self.caption_overlay = CaptionOverlay(screen)
+            self.caption_overlay.clear()
+            self.caption_overlay.set_status("Starting live captions…")
+            self.caption_overlay.show()
+            self._start_listener()
+        self._build_menu()
+
+    def _start_listener(self):
+        from .speech import Listener  # the speech libraries load only once captions are used
+
+        self._stop_listener()
+        log.info(
+            "Live captions: %s -> %s via %s, model %s on %s",
+            self.cfg.speech_lang,
+            self.cfg.target_lang,
+            self.translator.name,
+            self.cfg.speech_model,
+            self.cfg.speech_device,
+        )
+        self.listener = Listener(
+            self.cfg.speech_lang,
+            self.cfg.target_lang,
+            self.translator,
+            self.cfg.speech_model,
+            self.cfg.speech_device,
+            self.bridge.caption.emit,
+            self.bridge.error.emit,
+            self.bridge.caption_status.emit,
+            self.bridge.captions_stopped.emit,
+        )
+        self.listener.start()
+
+    def _stop_listener(self):
+        if self.listener:
+            self.listener.stop()
+            self.listener = None
+
+    def _on_listener_stopped(self, listener):
+        """The listener gave up by itself (no model, no sound device); the error is already shown."""
+        if listener is self.listener:
+            self.listener = None
+            self.caption_overlay.hide()
+            self._build_menu()
+
+    def _on_caption(self, caption):
+        if self.caption_overlay and self.listener:
+            self.caption_overlay.set_caption(caption)
+
+    def _on_caption_status(self, text: str, fade: bool):
+        if self.caption_overlay and self.listener:
+            self.caption_overlay.set_status(text, fade)
+
     # ---- messages, updates and crashes --------------------------------------------------------
     def _on_error(self, message: str):
         log.warning(message)
@@ -373,6 +456,7 @@ class PolyglassApp:
     def quit(self):
         log.info("Quitting")
         self._stop_worker()
+        self._stop_listener()
         if self.hotkeys:
             self.hotkeys.stop()
         self.server.close()

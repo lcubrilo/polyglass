@@ -35,6 +35,12 @@ class Config:
     hotkey_select: str = "Ctrl+Alt+L"
     hotkey_toggle: str = "Ctrl+Alt+K"
     hotkey_stop: str = "Ctrl+Alt+X"
+    hotkey_captions: str = "Ctrl+Alt+S"
+    # Live captions: language spoken ("auto" or an ISO code), Whisper model size ("auto": large-v3-turbo on
+    # a GPU, small on a CPU) and where it runs ("auto", "cuda", "cpu")
+    speech_lang: str = "auto"
+    speech_model: str = "auto"
+    speech_device: str = "auto"
     # Corner marks around the watched area
     show_frame: bool = True
     # Ask GitHub once a day whether a newer release exists

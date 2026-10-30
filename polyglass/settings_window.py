@@ -20,6 +20,7 @@ from . import keys, system
 from .config import Config
 from .hotkeys import parse as parse_hotkey
 from .ocr import installed_languages
+from .speech import MODEL_SIZES
 from .translate import LANGUAGE_NAMES, available_translators
 
 TRANSLATOR_LABELS = {
@@ -30,6 +31,7 @@ TRANSLATOR_LABELS = {
 }
 CLAUDE_MODELS = ["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"]
 EFFORTS = ["low", "medium", "high"]
+SPEECH_DEVICES = {"auto": "Automatic (GPU if it works, else CPU)", "cuda": "NVIDIA GPU", "cpu": "CPU"}
 KEY_LINKS = {
     "deepl": ("DeepL API key", "https://www.deepl.com/your-account/keys", "free plan: 500,000 characters a month"),
     "anthropic": ("Claude API key", "https://console.anthropic.com/settings/keys", "pay per use"),
@@ -56,6 +58,7 @@ class SettingsWindow(QDialog):
         tabs.addTab(self._translation_tab(), "Translation")
         tabs.addTab(self._keys_tab(), "Keys")
         tabs.addTab(self._general_tab(), "Hotkeys && look")
+        tabs.addTab(self._captions_tab(), "Live captions")
         tabs.setCurrentIndex(start_tab)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
@@ -142,6 +145,7 @@ class SettingsWindow(QDialog):
             ("hotkey_select", "Pick an area"),
             ("hotkey_toggle", "Show / hide overlay"),
             ("hotkey_stop", "Stop watching"),
+            ("hotkey_captions", "Live captions on / off"),
         ):
             edit = QKeySequenceEdit(QKeySequence(getattr(self.cfg, attr)))
             edit.setMaximumSequenceLength(1)
@@ -156,6 +160,44 @@ class SettingsWindow(QDialog):
         self.updates = QCheckBox("Check GitHub for a new version when Polyglass starts")
         self.updates.setChecked(self.cfg.check_updates)
         form.addRow(self.updates)
+        return page
+
+    def _captions_tab(self) -> QWidget:
+        page, form = QWidget(), QFormLayout()
+        page.setLayout(form)
+        intro = QLabel(
+            "Live captions turn what your PC is playing (a video, a call) into translated subtitles. Speech is "
+            "transcribed on this PC and never saved; only the text goes to the translator."
+        )
+        intro.setWordWrap(True)
+        form.addRow(intro)
+
+        self.speech_lang = QComboBox()
+        self.speech_lang.addItem("Detect automatically", "auto")
+        for code, name in sorted(LANGUAGE_NAMES.items(), key=lambda item: item[1]):
+            self.speech_lang.addItem(name, code)
+        self._select(self.speech_lang, self.cfg.speech_lang)
+        form.addRow("Language spoken", self.speech_lang)
+
+        self.speech_model = QComboBox()
+        self.speech_model.addItem("Automatic (large-v3-turbo on a GPU, small on a CPU)", "auto")
+        for size, note in MODEL_SIZES.items():
+            self.speech_model.addItem(f"{size} ({note})", size)
+        self._select(self.speech_model, self.cfg.speech_model)
+        form.addRow("Speech model", self.speech_model)
+
+        self.speech_device = QComboBox()
+        for value, label in SPEECH_DEVICES.items():
+            self.speech_device.addItem(label, value)
+        self._select(self.speech_device, self.cfg.speech_device)
+        form.addRow("Run on", self.speech_device)
+        hint = QLabel(
+            "The model downloads once, the first time captions start. Larger models understand more but need "
+            "a fast PC; on a CPU, small keeps up best."
+        )
+        hint.setWordWrap(True)
+        hint.setStyleSheet("color: gray")
+        form.addRow("", hint)
         return page
 
     # ---- saving ------------------------------------------------------------------------------
@@ -191,6 +233,9 @@ class SettingsWindow(QDialog):
         self.cfg.claude_effort = self.effort.currentText()
         for attr, text in hotkeys.items():
             setattr(self.cfg, attr, text)
+        self.cfg.speech_lang = self.speech_lang.currentData()
+        self.cfg.speech_model = self.speech_model.currentData()
+        self.cfg.speech_device = self.speech_device.currentData()
         self.cfg.show_frame = self.show_frame.isChecked()
         self.cfg.check_updates = self.updates.isChecked()
         if self.autostart.isChecked() != system.starts_with_windows():

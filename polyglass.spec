@@ -1,6 +1,6 @@
 # PyInstaller build: pyinstaller polyglass.spec  ->  dist/Polyglass/Polyglass.exe
 # One folder (not one file) so the app starts fast and the installer can ship it as-is.
-from PyInstaller.utils.hooks import collect_all, copy_metadata
+from PyInstaller.utils.hooks import collect_all, collect_data_files, collect_dynamic_libs, copy_metadata
 
 datas, binaries, hiddenimports = [], [], []
 # WinRT projections are compiled modules in a namespace package that PyInstaller can't follow by itself
@@ -9,6 +9,9 @@ for package in ("winrt",):
     datas += d
     binaries += b
     hiddenimports += h
+# Live captions: Whisper's native library, the voice-activity model, and soundcard's C declarations
+binaries += collect_dynamic_libs("ctranslate2")
+datas += collect_data_files("faster_whisper") + collect_data_files("soundcard")
 # Version shown in the app, and keyring's backend discovery, both read package metadata
 datas += copy_metadata("polyglass") + copy_metadata("keyring")
 datas += [("polyglass/resources", "polyglass/resources"), ("LICENSE", "."), ("THIRD_PARTY_NOTICES.md", ".")]

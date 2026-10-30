@@ -13,6 +13,17 @@ module, so an OCR engine or translator can be swapped without touching the rest.
                    capture (mss) → ocr.py → layout.py → translate.py (own thread)
 ```
 
+Live captions are a second pipeline, **loopback audio → speech-to-text → translate → subtitles**, sharing the
+translators and the overlay window type:
+
+```
+  hotkey / tray ──► app.py ──► ui.CaptionOverlay (subtitles at the bottom of a screen)
+                      │                 ▲
+                      ▼                 │ captions
+            speech.Listener: record (soundcard loopback) → SpeechChunker → faster-whisper → translate.py
+                             own thread                     own thread       own thread
+```
+
 ## Modules
 
 | Module | Job |
@@ -22,7 +33,8 @@ module, so an OCR engine or translator can be swapped without touching the rest.
 | `ocr.py` | Windows' built-in OCR (`Windows.Media.Ocr` via WinRT). Returns lines with pixel boxes; upscales small areas because Windows OCR misses small text. |
 | `layout.py` | Measures each line (background and text colour, font size, stroke weight), grows boxes over characters OCR dropped, and groups lines into blocks: paragraphs are joined with spaces, list items keep their line breaks. |
 | `translate.py` | Translators behind one interface: Claude (structured JSON output, earlier blocks as context), DeepL, and an opt-in unofficial Google endpoint. |
-| `ui.py` | The overlay window (click-through, always on top, excluded from screen capture) and the drag-to-select picker. |
+| `speech.py` | Live captions: records what the speakers play (WASAPI loopback via `soundcard`), cuts it into utterances at pauses, transcribes them with faster-whisper (GPU when the CUDA libraries load, else CPU) and translates each caption with earlier captions as context. Recording, transcribing and translating run on separate threads, so audio is never dropped while the model works; if the model falls behind, the oldest waiting utterance is skipped to stay live. |
+| `ui.py` | The overlays (click-through, always on top, excluded from screen capture): translations painted over the watched area, and caption subtitles. Also the drag-to-select picker. |
 | `hotkeys.py` | System-wide hotkeys through Win32 `RegisterHotKey`, on a thread with its own message loop. |
 | `config.py` | Settings dataclass stored as JSON, with versioned migrations. Never holds API keys. |
 | `keys.py` | API keys: environment variable first, otherwise Windows Credential Manager (via `keyring`). |
@@ -51,5 +63,10 @@ module, so an OCR engine or translator can be swapped without touching the rest.
   content has changed *and* settled, so scrolling doesn't trigger a burst of translations.
 - **Translate blocks, not lines.** Lines are grouped into paragraphs first so the translator sees whole
   sentences; translations are cached by normalised source text, so text seen before reappears instantly.
+- **Speech stays on the PC.** Whisper runs locally; the model downloads once into
+  `%LOCALAPPDATA%\Polyglass\models`. "Automatic" picks the GPU only after the CUDA DLLs actually load, so a
+  PC with an NVIDIA card but no CUDA libraries never downloads the large GPU model just to fall back.
+- **Detect the spoken language once.** On a CPU, language detection costs about as much as transcribing, so
+  "Detect automatically" keeps the first confident detection for the rest of the session.
 - **Qt before WinRT.** Importing PySide6 after the WinRT modules crashes the process, so `ocr.py` imports
   Qt first, and the QApplication is created before any WinRT call on the main thread.

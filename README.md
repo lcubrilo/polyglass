@@ -6,9 +6,12 @@
 paints the translation right over the original text, matching its background, colour, size and weight.
 It works on anything you can see: apps, games, videos with burned-in subtitles, chats, images.
 
+It can also **listen**: live captions turn speech in whatever your PC is playing (a video without
+subtitles, a stream, a call) into translated subtitles, transcribed on your own PC.
+
 <!-- TODO: demo GIF -->
 
-> Status: early alpha (0.1). Windows 10/11 only.
+> Status: early alpha (0.2). Windows 10/11 only.
 
 ## How it works
 
@@ -23,6 +26,7 @@ It works on anything you can see: apps, games, videos with burned-in subtitles, 
 | **Ctrl+Alt+L** | Pick an area (again to move it) |
 | **Ctrl+Alt+K** | Hide/show the overlay to peek at the original |
 | **Ctrl+Alt+X** | Stop watching |
+| **Ctrl+Alt+S** | Live captions on/off |
 
 ### Translating a video's subtitles
 
@@ -34,6 +38,29 @@ It works on anything you can see: apps, games, videos with burned-in subtitles, 
 
 Set the subtitle language under **Settings → Translation → Translate from**, and install its Windows OCR language
 (see [Languages](#languages)).
+
+### Live captions for videos without subtitles
+
+1. Play the video, with sound on.
+2. Press **Ctrl+Alt+S** (or tick **Live captions** in the tray menu). Subtitles appear at the bottom of the
+   screen your mouse is on: first what was said in grey, then its translation in white, about a second or
+   two after each sentence.
+3. Press **Ctrl+Alt+S** again to turn them off.
+
+Polyglass records what your speakers play (not your microphone) and transcribes it on your PC with
+[Whisper](https://github.com/openai/whisper), through [faster-whisper](https://github.com/SYSTRAN/faster-whisper).
+The audio is never saved or sent anywhere; only the transcribed text goes to your translator. The first time,
+it downloads the speech model once (480 MB for *small*), which takes a minute or two.
+
+In **Settings → Live captions** you can set:
+
+- **Language spoken.** *Detect automatically* works, and keeps the language it detects for the rest of the
+  session. Setting it (e.g. *Serbian*) is a little faster and more accurate. Whisper understands about 100
+  languages; Serbian, Croatian and Bosnian work well, in Latin or Cyrillic script.
+- **Speech model.** *Automatic* uses *large-v3-turbo* on an NVIDIA GPU and *small* on a CPU. Bigger models
+  understand more but are slower; on a CPU, *small* keeps up with normal speech on a recent PC.
+- **Run on.** The installer version runs on the CPU. The GPU needs the CUDA libraries, which come with
+  `pip install -e ".[gpu]"` when you [run from source](#run-from-source-for-developers) (about 1 GB).
 
 Everything else is in the tray menu and the **Settings** window: translator, languages, API keys, hotkeys,
 the corner marks around the watched area, and starting with Windows.
@@ -58,8 +85,8 @@ translator supports works as the target.
 
 ## Privacy
 
-The screen area you pick is processed on your PC. Only the recognised text is sent, to the translator you
-chose. Polyglass has no telemetry. Details in [docs/PRIVACY.md](docs/PRIVACY.md).
+The screen area you pick, and the sound for live captions, are processed on your PC and never saved. Only the
+recognised text is sent, to the translator you chose. Polyglass has no telemetry. Details in [docs/PRIVACY.md](docs/PRIVACY.md).
 
 ## Install
 

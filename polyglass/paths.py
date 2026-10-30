@@ -18,4 +18,11 @@ def log_dir() -> Path:
     return path
 
 
+def models_dir() -> Path:
+    """Speech models, downloaded on first use of live captions."""
+    path = log_dir().parent / "models"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
 REPO_URL = "https://github.com/lcubrilo/polyglass"

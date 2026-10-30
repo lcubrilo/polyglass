@@ -21,6 +21,9 @@ py -3.11 -m venv .venv
 .venv\Scripts\python -m polyglass     # run with a console, so log output is visible
 ```
 
+For live captions on an NVIDIA GPU, also install the CUDA libraries (about 1 GB):
+`.venv\Scripts\pip install -e ".[gpu]"`. Without them, captions run on the CPU.
+
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) explains how the pieces fit together.
 
 ## Before you open a pull request
@@ -41,13 +44,14 @@ Keep pull requests focused on one change, add or update tests for behaviour chan
 
 ```powershell
 .venv\Scripts\pyinstaller --noconfirm polyglass.spec        # dist\Polyglass\Polyglass.exe
-dist\Polyglass\Polyglass.exe --selftest                      # reads a sample page through the packaged OCR
+dist\Polyglass\Polyglass.exe --selftest                      # packaged OCR and speech libraries
 winget install JRSoftware.InnoSetup                          # once
-& "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" /DAppVersion=0.1.0 installer\polyglass.iss
+& "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" /DAppVersion=0.2.0 installer\polyglass.iss
 ```
 
-The installer lands in `dist\`. The self-test exits with 0 on success and 2 when neither the French nor the
-English Windows OCR language is installed.
+The installer lands in `dist\`. The self-test exits with 0 on success, 1 when OCR misreads the sample, 2 when
+neither the French nor the English Windows OCR language is installed, and 3 when the speech libraries fail
+to load.
 
 ## Releasing (maintainers)
 
